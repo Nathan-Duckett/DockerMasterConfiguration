@@ -1,0 +1,179 @@
+version: "3.3"
+services:
+  # Sonarr installation
+  sonarr:
+    image: linuxserver/sonarr
+    container_name: sonarr
+    networks:
+      - traefik_proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Pacific/Auckland
+    volumes:
+      - ~/.media-config/sonarr:/config
+      - /mnt/lacie/Television:/tv/lacie
+      - /mnt/media/Videos/Television:/tv/media
+      - /mnt/mini/download:/downloads
+    labels:
+      - traefik.http.routers.sonarr.rule=Host(`sonarr.ndser.page`)
+      - traefik.http.routers.sonarr.entrypoints=https
+      - traefik.http.routers.sonarr.tls=true
+      - traefik.http.routers.sonarr.tls.certresolver=letsencrypt
+      - traefik.http.routers.sonarr.service=sonarr
+      - traefik.http.services.sonarr.loadbalancer.server.port=8989
+    restart: always
+  # Radarr installation
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    networks:
+      - traefik_proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Pacific/Auckland
+    volumes:
+      - ~/.media-config/radarr:/config
+      - /mnt/lacie/Movies:/movies/lacie
+      - /mnt/mini/Videos/Movies:/movies/mini
+      - /mnt/mini/download:/downloads
+    labels:
+      - traefik.http.routers.radarr.rule=Host(`radarr.ndser.page`)
+      - traefik.http.routers.radarr.entrypoints=https
+      - traefik.http.routers.radarr.tls=true
+      - traefik.http.routers.radarr.tls.certresolver=letsencrypt
+      - traefik.http.services.radarr.loadbalancer.server.port=7878
+    restart: always
+  # Lidarr installation
+  lidarr:
+    image: linuxserver/lidarr
+    container_name: lidarr
+    networks:
+      - traefik_proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Pacific/Auckland
+    volumes:
+      - ~/.media-config/lidarr:/config
+      - /mnt/mini/Music:/music
+      - /mnt/mini/download:/downloads
+    labels:
+      - traefik.http.routers.lidarr.rule=Host(`lidarr.ndser.page`)
+      - traefik.http.routers.lidarr.entrypoints=https
+      - traefik.http.routers.lidarr.tls=true
+      - traefik.http.routers.lidarr.tls.certresolver=letsencrypt
+      - traefik.http.services.lidarr.loadbalancer.server.port=8686
+    restart: always
+  bazarr:
+    image: linuxserver/bazarr
+    container_name: bazarr
+    networks:
+      - traefik_proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Pacific/Auckland
+    volumes:
+      - ~/.media-config/bazarr:/config
+      - /mnt/lacie/Movies:/movies/lacie
+      - /mnt/mini/Videos/Movies:/movies/mini
+      - /mnt/lacie/Television:/tv/lacie
+      - /mnt/media/Videos/Television:/tv/media
+    labels:
+      - traefik.http.routers.bazarr.rule=Host(`bazarr.ndser.page`)
+      - traefik.http.routers.bazarr.entrypoints=https
+      - traefik.http.routers.bazarr.tls=true
+      - traefik.http.routers.bazarr.tls.certresolver=letsencrypt
+      - traefik.http.services.bazarr.loadbalancer.server.port=6767
+    restart: always
+  # Ombi installation
+  ombi:
+    image: linuxserver/ombi
+    container_name: ombi
+    networks:
+      - traefik_proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Pacific/Auckland
+    volumes:
+      - ~/.media-config/ombi:/config
+    labels:
+      - traefik.http.routers.ombi.rule=Host(`ombi.ndser.page`)
+      - traefik.http.routers.ombi.entrypoints=https
+      - traefik.http.routers.ombi.tls=true
+      - traefik.http.routers.ombi.tls.certresolver=letsencrypt
+      - traefik.http.services.ombi.loadbalancer.server.port=3579
+    restart: always
+  # Jackett installation
+  jackett:
+    image: linuxserver/jackett
+    container_name: jackett
+    networks:
+      - traefik_proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Pacific/Auckland
+    volumes:
+      - ~/.media-config/jackett:/config
+      - /mnt/mini/download:/downloads
+    labels:
+      - traefik.http.routers.jackett.rule=Host(`jackett.ndser.page`)
+      - traefik.http.routers.jackett.entrypoints=https
+      - traefik.http.routers.jackett.tls=true
+      - traefik.http.routers.jackett.tls.certresolver=letsencrypt
+      - traefik.http.services.jackett.loadbalancer.server.port=9117
+    restart: always
+  # Tautulli installation
+  tautulli:
+    image: linuxserver/tautulli
+    container_name: tautulli
+    networks:
+      - traefik_proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Pacific/Auckland
+    volumes:
+      - ~/.media-config/tautulli:/config
+      - /var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Logs:/logs
+    labels:
+      - traefik.http.routers.tautulli.rule=Host(`tautulli.ndser.page`)
+      - traefik.http.routers.tautulli.entrypoints=https
+      - traefik.http.routers.tautulli.tls=true
+      - traefik.http.routers.tautulli.tls.certresolver=letsencrypt
+      - traefik.http.services.tautulli.loadbalancer.server.port=8181
+    restart: always
+  # qBittorrent VPN installation
+  qbittorrent:
+    image: "markusmcnugen/qbittorrentvpn"
+    container_name: "qbittorrent"
+    networks:
+      - traefik_proxy
+    restart: always
+    privileged: true
+    environment:
+      - "VPN_ENABLED=yes"
+      - "LAN_NETWORK=192.168.1.0/24"
+      - "NAME_SERVERS=1.1.1.1,8.8.8.8"
+    ports:
+      - 8999:8999
+      - 8999:8999/udp
+    labels:
+      - traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.ndser.page`)
+      - traefik.http.routers.qbittorrent.entrypoints=https
+      - traefik.http.routers.qbittorrent.tls=true
+      - traefik.http.routers.qbittorrent.tls.certresolver=letsencrypt
+      - traefik.http.services.qbittorrent.loadbalancer.server.port=8080
+    volumes:
+      - "~/.media-config/qBittorrent:/config:cached"
+      - "/mnt/mini/download:/downloads:cached"
+
+
+networks:
+  traefik_proxy:
+    external:
+      name: traefik_proxy

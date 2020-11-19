@@ -1,0 +1,29 @@
+version: "3.3"
+services:
+  gitlab:
+    image: 'gitlab/gitlab-ce:latest'
+    restart: always
+    hostname: 'gitlab.ndser.page'
+    networks:
+      - traefik_proxy
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://gitlab.ndser.page'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2224
+        # Add any other gitlab.rb configuration here, each on its own line
+    ports:
+      - '2224:22'
+    volumes:
+      - '$GITLAB_HOME/config:/etc/gitlab'
+      - '$GITLAB_HOME/logs:/var/log/gitlab'
+      - '$GITLAB_HOME/data:/var/opt/gitlab'
+    labels:
+      - traefik.http.routers.gitlab.rule=Host(`gitlab.ndser.page`)
+      - traefik.http.routers.gitlab.entrypoints=https
+      - traefik.http.routers.gitlab.tls=true
+      - traefik.http.routers.gitlab.tls.certresolver=letsencrypt
+
+networks:
+  traefik_proxy:
+    external:
+      name: traefik_proxy

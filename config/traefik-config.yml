@@ -1,0 +1,27 @@
+api:
+  dashboard: true
+
+entryPoints:
+  http:
+    address: ":80"
+    # Global redirect from HTTP to HTTPS automatically
+    http:
+      redirections:
+        entrypoint:
+          # Matches the entryPoint below
+          to: https
+          scheme: https
+  https:
+    address: ":443"
+
+providers:
+  docker:
+    network: traefik_proxy
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: nduckett13@gmail.com
+      storage: acme.json
+      httpChallenge:
+        entryPoint: http
