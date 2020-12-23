@@ -1,0 +1,26 @@
+version: "3.3"
+services:
+  jenkins:
+    image: jenkins/jenkins:latest
+    container_name: jenkins
+    hostname: jenkins.ndser.page
+    networks:
+      - traefik_proxy
+    privileged: true
+    environment: 
+     - DOCKER_TLS_CERTDIR=/certs
+     - DOCKER_TLS_VERIFY=1
+    volumes:
+     - ~/.jenkins/certs:/certs/client
+     - ~/.jenkins/data:/var/jenkins_home
+    labels:
+      - traefik.http.routers.jenkins.rule=Host(`jenkins.ndser.page`)
+      - traefik.http.routers.jenkins.entrypoints=https
+      - traefik.http.routers.jenkins.tls=true
+      - traefik.http.routers.jenkins.tls.certresolver=letsencrypt
+      - traefik.http.services.jenkins.loadbalancer.server.port=8080
+
+networks:
+  traefik_proxy:
+    external:
+      name: traefik_proxy
