@@ -1,0 +1,21 @@
+version: "3.3"
+services:
+  nexus:
+    image: sonatype/nexus3
+    container_name: nexus
+    restart: always
+    networks:
+      - traefik_proxy
+    volumes:
+      - ~/.nexus/:/nexus-data
+    labels:
+      - traefik.http.routers.nexus.rule=Host(`nexus.ndser.page`)
+      - traefik.http.routers.nexus.entrypoints=https
+      - traefik.http.routers.nexus.tls=true
+      - traefik.http.routers.nexus.tls.certresolver=letsencrypt
+      - traefik.http.services.nexus.loadbalancer.server.port=8081
+
+networks:
+  traefik_proxy:
+    external:
+      name: traefik_proxy  
