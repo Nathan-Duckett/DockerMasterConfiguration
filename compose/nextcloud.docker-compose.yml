@@ -1,0 +1,46 @@
+version: "3.3"
+services:
+  nextcloud:
+    image: nextcloud
+    container_name: nextcloud
+    hostname: nextcloud.ndser.page
+    restart: always
+    networks:
+      - traefik_proxy
+      - nextcloud_db_network
+    volumes:
+      - ~/.nextcloud:/var/www/html
+    environment:
+      - MYSQL_PASSWORD=${NEXTCLOUD_SQL_PASSWORD}
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_HOST=nextcloud_db
+    labels:
+      - traefik.http.routers.nextcloud.rule=Host(`nextcloud.ndser.page`)
+      - traefik.http.routers.nextcloud.entrypoints=https
+      - traefik.http.routers.nextcloud.tls=true
+      - traefik.http.routers.nextcloud.tls.certresolver=letsencrypt
+      - traefik.http.services.nextcloud.loadbalancer.server.port=80
+  nextcloud_db:
+    image: mariadb
+    container_name: nextcloud_db
+    restart: always
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    networks:
+      - nextcloud_db_network
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${NEXTCLOUD_ROOT_SQL_PASSWORD}
+      - MYSQL_PASSWORD=${NEXTCLOUD_SQL_PASSWORD}
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+
+
+networks:
+  nextcloud_db_network:
+    name: nextcloud_db_network
+  traefik_proxy:
+    external:
+      name: traefik_proxy
+
