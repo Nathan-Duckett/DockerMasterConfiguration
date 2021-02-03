@@ -1,0 +1,28 @@
+version: '3.6'
+services:
+  vault:
+    image: vault:latest
+    container_name: vault
+    hostname: vault.ndser.page
+    restart: always
+    environment:
+      VAULT_ADDR: 'https://vault.ndser.page'
+      VAULT_DEV_ROOT_TOKEN_ID: '00000000-0000-0000-0000-000000000000'
+      VAULT_TOKEN: '00000000-0000-0000-0000-000000000000'
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ~/.vault:/data
+    networks:
+      - traefik_proxy
+    labels:
+      - traefik.http.routers.vault.rule=Host(`vault.ndser.page`)
+      - traefik.http.routers.vault.entrypoints=https
+      - traefik.http.routers.vault.tls=true
+      - traefik.http.routers.vault.tls.certresolver=letsencrypt
+      - traefik.http.services.vault.loadbalancer.server.port=8200
+
+networks:
+  traefik_proxy:
+    external:
+      name: traefik_proxy
