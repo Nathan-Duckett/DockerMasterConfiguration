@@ -7,12 +7,14 @@ services:
     networks:
       - traefik_proxy
     privileged: true
+    restart: unless-stopped
     environment: 
      - DOCKER_TLS_CERTDIR=/certs
      - DOCKER_TLS_VERIFY=1
     volumes:
      - ~/.jenkins/certs:/certs/client
      - ~/.jenkins/data:/var/jenkins_home
+     - /var/run/docker.sock:/var/run/docker.sock
     labels:
       - traefik.http.routers.jenkins.rule=Host(`jenkins.ndser.page`)
       - traefik.http.routers.jenkins.entrypoints=https
