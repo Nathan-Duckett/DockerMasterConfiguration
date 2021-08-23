@@ -1,0 +1,23 @@
+  
+version: "3.3"
+services:
+  uptime-kama:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    hostname: up.ndser.page
+    networks:
+      - traefik_proxy
+    restart: unless-stopped 
+    volumes:
+      - ~/.dockerServices/uptime-kama/data:/app/data
+    labels:
+      - traefik.http.routers.uptime-kama.rule=Host(`up.ndser.page`)
+      - traefik.http.routers.uptime-kama.entrypoints=https
+      - traefik.http.routers.uptime-kama.tls=true
+      - traefik.http.routers.uptime-kama.tls.certresolver=letsencrypt
+      - traefik.http.services.uptime-kama.loadbalancer.server.port=3001
+
+networks:
+  traefik_proxy:
+    external:
+      name: traefik_proxy
